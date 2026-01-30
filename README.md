@@ -11,7 +11,7 @@
 |Chapters            |Description
 |-------------------|-------------------
 |[Requirements](#requirements)       | Here are all system and download requirements, including a download guide
-|[About](./ABOUT.md)| Here you can find all the necessary documentation, references, and extra information. 
+|[About](./About.md)| Here you can find all the necessary documentation, references, and extra information. 
 |[User Guide](./Guide.md) | Here you can find a full installation and user guide to get you started with this repository
-[DeepLabCut Tips & Tricks](/.DLC.md) | Here you can find all the insights I made, and my guide to setting up DLC.
+[DeepLabCut Tips & Tricks](./DLC.md) | Here you can find all the insights I made, and my guide to setting up DLC.
 []

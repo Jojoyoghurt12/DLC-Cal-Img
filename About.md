@@ -10,7 +10,7 @@
 ---
 *This repository serves as a pipeline for efficiently integrating and comparing behavioural data to calcium imaging data by matching location through time to activity through time.*
 
-> [!NOTE] 
+> [!Note] 
 > This repository is open-sourced and can be used by whoever seems fit. 
 
 ---

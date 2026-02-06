@@ -1,7 +1,7 @@
 # Welcome
 
 **This pipeline** serves as a tool for accurately determining and exploring the relations between acquired calcium imaging and behavioural data. Secondly this repository and pipeline are based on data acquired through **DeepLabCut**. 
-> [!NOTE] 
+> [!Note] 
 > For more information regarding the usage of the software visit their [Official GitHub Page](https://github.com/DeepLabCut/DeepLabCut/blob/main/README.md). A guide of my own, together with some useful tips and tricks I used for my cases can be found [here](DLC.md) 
 
 

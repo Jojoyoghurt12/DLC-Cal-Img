@@ -49,7 +49,7 @@ python -m deeplabcut
 ```
 
 For the purpose of this guide I will use the GUI version of DLC. Furthermore, I personally recommend this version as well for people new to the software. 
->[!TIP]
+>[!Tip]
 > For all the necessary commands and other features of the non GUI version of DLC, check out their documentation on their GitHub page. 
 
 You will be greeted by the following screen after launching DLC;
@@ -72,7 +72,7 @@ From here on out its all you, the software allows for super wide range of action
 ## [__Hábrók__](#hábrók)
 For training on the Hábrók GPU Cluster at the RUG, for which you can find the link to its dashboard [**here**](https://portal.hb.hpc.rug.nl/pun/sys/dashboard). You will need permission from the University to access its services through your personal RUG-account, a link to that page can be found [**here**](https://iris.service.rug.nl/). 
 
-> [!NOTE]
+> [!Note]
 > There exists a [**Hábrók Wiki**](https://wiki.hpc.rug.nl/habrok/) which covers a lot more on the usage of all sorts of services, so its highly recommended you give it a try.
 
 After having been granted access, and opening the dashboard you will be presented with the following GUI;
@@ -84,11 +84,11 @@ After scrolling down a bit you will find the following **App list**;
 ![App list](./docs/imgs/app_list.png)
 
 Here you can find all the possible environments you can set up. 
-> [!TIP] DLC does have a preexisting [**Jupyter Notebook**](https://github.com/DeepLabCut/DeepLabCut/blob/main/examples/JUPYTER/Demo_yourowndata.ipynb), for a quick start and a hands-on experience. You can run this in the above shown Jupyter tab. 
+> [!Tip] DLC does have a preexisting [**Jupyter Notebook**](https://github.com/DeepLabCut/DeepLabCut/blob/main/examples/JUPYTER/Demo_yourowndata.ipynb), for a quick start and a hands-on experience. You can run this in the above shown Jupyter tab. 
 
 When running straight from code, use the VS code Server option. 
 
->[!HINT]
+>[!Hint]
 >I personally like using the Jupyter notebook option, due to the easy step by step approach you can take when limited by for example computation time or reservations. 
 
 As for the usage, the same order follows and go through the steps in either the terminal or in the Jupyter Notebook. 

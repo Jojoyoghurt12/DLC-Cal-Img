@@ -1,0 +1,32 @@
+# Large video files
+*.avi
+
+# Large data files  
+*.zarr/
+Binarizing\ data/test\ videos/
+Binarizing\ data/minian_intermediate/
+
+# Large notebooks with embedded outputs  
+Binarizing\ data/pipeline.ipynb
+
+# Virtual environments
+.venv/ 
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Data files that don't need version control
+*.csv
+*.h5
+*.mat
+
+# OS files
+.DS_Store
+Thumbs.db

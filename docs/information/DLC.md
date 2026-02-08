@@ -68,6 +68,86 @@ It's important that you make sure your config file is up to date with everything
 
 From here on out its all you, the software allows for super wide range of actions. There are a ton of variables you can tweek, and many different biomechanical ways to look at your species of choice. So the best advice is to just go and fiddle with your settings, figure out your preferred method and applying it using the very intuitive steps DeepLabCut lays out for you. 
 
+# DLC data
+
+
+##  `.h5` structure (what to expect)
+
+ `.h5` files are usually written as a pandas DataFrame with a **MultiIndex column header**, commonly shaped like:
+
+- level 0: `scorer` (model name)
+- level 1: `bodyparts` (e.g. snout, tailbase, …)
+- level 2: `coords` (`x`, `y`, `likelihood`)
+
+So per frame you typically have: `x`, `y`, `likelihood` for each body part.
+
+## Step 1 — Inspect a single  `.h5` (Optional)
+
+Script: `DLc_data/dlc data expl/dlc_data_expl.py`
+
+What it does:
+
+- Loads one `.h5` via `pandas.read_hdf()`.
+- Writes the first ~20 rows to a CSV (`_data_sample.csv`) so you can quickly see the header/shape.
+
+You can use this to get a grasp of the dataframe structure in case you want to alter the code to function differently. 
+
+Run it:
+
+```bash
+cd ".DLC_data\dlc data into one/dlc data expl"
+python _data_expl.py
+```
+
+Adjust the input `.h5` in the `__main__` block if needed.
+
+Output:
+
+- `dlc_data_sample.csv` (first rows only; meant for inspection)
+
+## Step 2 — Combine multiple  `.h5` files into one CSV
+
+Script: `DLC_data/to csv/data_to_csv.py`
+
+What it does:
+
+- Finds all `.h5` files in `folder_path`.
+- Sorts them alphabetically (so naming matters).
+- Loads each with `pandas.read_hdf()`.
+- Concatenates them row-wise (`pd.concat(..., ignore_index=True)`).
+- Writes one combined CSV (default: `combined__data.csv`).
+
+Run it:
+
+```bash
+cd ".DLC_data/to csv/"
+python data_to_csv.py
+```
+
+In the `__main__` block, set:
+
+- `folder_path` = folder that contains the `.h5` files you want to combine
+- `output_file` = name/path for output (or `None` to use default)
+
+Example (use the `.h5`s already present in this folder):
+
+```python
+folder_path = r".\\DLC_data\\to csv"
+output_file = None
+```
+
+Output:
+
+- `combined__data.csv`
+
+>[!Tip]
+> Because  data uses MultiIndex columns, the combined CSV may have multiple header rows. If you later read it back into pandas, you may need something like `pd.read_csv(..., header=[0,1,2])` depending on how it was exported.
+
+## Quick checklist (common issues)
+
+- `ValueError: DataFrame is empty`: confirm the `.h5` path is correct and the file isn’t corrupted.
+- `No .h5 files found`: confirm `folder_path` points to the directory containing your  `.h5` outputs.
+
 # Specifically for the University of Groningen
 ## [__Hábrók__](#hábrók)
 For training on the Hábrók GPU Cluster at the RUG, for which you can find the link to its dashboard [**here**](https://portal.hb.hpc.rug.nl/pun/sys/dashboard). You will need permission from the University to access its services through your personal RUG-account, a link to that page can be found [**here**](https://iris.service.rug.nl/). 

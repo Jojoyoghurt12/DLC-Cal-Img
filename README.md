@@ -11,7 +11,8 @@
 |Chapters            |Description
 |-------------------|-------------------
 |[Requirements](#requirements)       | Here are all system and download requirements, including a download guide
-|[About](./About.md)| Here you can find all the necessary documentation, references, and extra information. 
-|[User Guide](./Guide.md) | Here you can find a full installation and user guide to get you started with this repository
-[DeepLabCut Tips & Tricks](./DLC.md) | Here you can find all the insights I made, and my guide to setting up DLC.
-[]
+|[About](./docs/information/About.md)| Here you can find all the necessary documentation, references, and extra information. 
+|[User Guide](./docs/information/Guide.md) | Here you can find a full installation and user guide to get you started with this repository
+[DeepLabCut](./docs/information/DLC.md) | Here you can find the short DLC Data prep pipeline, all the insights I made, and my guide to setting up DLC.
+[Cleaning Timestamp data](./docs/information/Cleaning.md) | Here you can find everything regarding the short pipeline for cleaning up and preparing your timestamped data. 
+[Minian](./docs/information/Minian.md) | Here you can find all the insights I made and a guide to using the pipeline for Binarizing data.

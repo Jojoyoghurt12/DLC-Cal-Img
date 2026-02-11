@@ -5,7 +5,7 @@ import os
 
 def plot_cells(file_name, csv_path, save_figure=True):
     """
-    Plot three cells' activity across frames using subplots for each cell
+    Plot x cells' activity across frames using subplots for each cell
     
     Input: 
     - .csv file made by convert_to_csv
@@ -66,12 +66,15 @@ def plot_cells(file_name, csv_path, save_figure=True):
 # Example usage
 if __name__ == "__main__":    
     # Check if our CSV file exists, add path to your .csv file
-    param_save_minian = {"dpath": "../test videos/minian/"}
-    file_name = "C.csv"  # specify a file name, must be string
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    minian_dir = os.path.join(script_dir, "minian")
+    param_save_minian = {"dpath": minian_dir}
+    file_name = "C_binary.csv"  # specify a file name, must be string
     csv_path = os.path.join(param_save_minian["dpath"], file_name)
+    print(f"Looking for CSV file at: {csv_path}")
     
     if os.path.exists(csv_path):
         plot_cells(file_name=file_name, csv_path=csv_path)
     else:
-        print("CSV file not found! Please check the path. " \
-        f"\n Current path: {param_save_minian['dpath']}")
+        print("CSV file not found! Please check the path. "
+              f"\n Current path: {param_save_minian['dpath']}")

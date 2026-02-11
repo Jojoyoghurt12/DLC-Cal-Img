@@ -172,9 +172,3 @@ When running straight from code, use the VS code Server option.
 >I personally like using the Jupyter notebook option, due to the easy step by step approach you can take when limited by for example computation time or reservations. 
 
 As for the usage, the same order follows and go through the steps in either the terminal or in the Jupyter Notebook. 
-
-
-
-
-
-

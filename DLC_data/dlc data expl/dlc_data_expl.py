@@ -25,6 +25,7 @@ def convert_to_csv(df, output_file=None):
     df.head(20).to_csv(output_file, index=False)
 
 if __name__ == "__main__":
-    df = load_dlc_data('Nol A1rl Test 070324DLC_resnet50_BN research projectFeb12shuffle1_205000 (1).h5')
+    file_path = 'C:\\Users\\Gebruiker\\Desktop\\MiPro_2026\\DLC model\\Data\\Data\\behavCam20DLC_Resnet50_POCJan30shuffle1_snapshot_best-100.h5'
+    df = load_dlc_data(file_path)
     convert_to_csv(df)
     print(df.head())

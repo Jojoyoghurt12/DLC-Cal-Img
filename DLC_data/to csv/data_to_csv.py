@@ -66,7 +66,7 @@ def camera_sort_key(name: str):
         return (1, name)
 
 if __name__ == "__main__":
-    folder_path = "C:\\Users\\Gebruiker\\Desktop\\MiPro_2026\\DLC model\\Data\\Data"
+    folder_path = "D:\AuTmMo1-Jesse-2026-02-20\Data"
     output_file = None  # or specify a name like "combined_dlc_data.csv"
     combine_all_csv(folder_path, output_file)
 

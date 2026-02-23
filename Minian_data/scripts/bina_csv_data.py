@@ -102,8 +102,8 @@ if __name__ == "__main__":
     Z_THRESHOLD = 2.0        # Standard deviations above noise (2-3 is typical)
     
     # File paths
-    input_file = "../test videos/minian/C.csv"
-    output_dir = "../test videos/minian/"
+    input_file = r"D:\Batch 1\24\24_20190904_T1\minian\C.csv"
+    output_dir = r"C:\Users\Gebruiker\Desktop\MiPro_2026\martial-madness\Minian_data\scripts\minian"
     
     # Check if input file exists
     if not os.path.exists(input_file):
@@ -118,12 +118,9 @@ if __name__ == "__main__":
         
         # Save results
         df_binary.to_csv(os.path.join(output_dir, "C_binary.csv"), index=False)
-        df_filtered.to_csv(os.path.join(output_dir, "C_filtered.csv"), index=False)
-        df_normalized.to_csv(os.path.join(output_dir, "C_normalized.csv"), index=False)
-        df_derivative.to_csv(os.path.join(output_dir, "C_derivative.csv"), index=False)
-        
-        print("\nSaved files:")
 
         
+        print("\nSaved files:")
+        print(os.path.join(output_dir, "C_binary.csv"))
     except Exception as e:
         print(f"Error processing data: {e}")

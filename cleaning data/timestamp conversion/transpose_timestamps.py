@@ -62,7 +62,7 @@ def transpose_timestamps(input_file, output_file=None):
     return result_df
 
 if __name__ == '__main__':
-    input_file = r'.\timestamp.dat'
-    output_file = r'.\timestamp_paired.csv'
+    input_file = r'D:\Batch 1\24\24_20190904_T1\timestamp.dat'
+    output_file = r'D:\Batch 1\24\24_20190904_T1\timestamp_paired.csv'
     
     transpose_timestamps(input_file, output_file)

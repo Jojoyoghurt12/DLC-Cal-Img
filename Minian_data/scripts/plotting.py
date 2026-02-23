@@ -69,7 +69,7 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.abspath(__file__))
     minian_dir = os.path.join(script_dir, "minian")
     param_save_minian = {"dpath": minian_dir}
-    file_name = "C_binary.csv"  # specify a file name, must be string
+    file_name = "C_derivative.csv"  # specify a file name, must be string
     csv_path = os.path.join(param_save_minian["dpath"], file_name)
     print(f"Looking for CSV file at: {csv_path}")
     

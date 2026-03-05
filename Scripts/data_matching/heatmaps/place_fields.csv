@@ -1,0 +1,10 @@
+cell,peak_x,peak_y,centroid_x,centroid_y,area_px,threshold_pct
+cell_0_binary,575,321,596,322,2846,0.2
+cell_1_binary,54,95,53,94,965,0.2
+cell_2_binary,610,325,603,330,2711,0.2
+cell_3_binary,611,334,609,330,1874,0.2
+cell_4_binary,614,340,612,330,1752,0.2
+cell_5_binary,607,324,606,327,1883,0.2
+cell_6_binary,611,333,609,331,1743,0.2
+cell_7_binary,605,330,610,336,1318,0.2
+cell_8_binary,613,336,613,333,1201,0.2

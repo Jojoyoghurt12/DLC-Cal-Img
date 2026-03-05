@@ -6,7 +6,7 @@ save its coordinates, for later use when comparing it to DLC data.
 from __future__ import annotations
 
 import argparse
-import opencv as cv2
+import cv2
 from pathlib import Path
 
 

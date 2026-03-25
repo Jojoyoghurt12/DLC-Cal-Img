@@ -33,7 +33,8 @@ import subprocess
 import shutil
 import sys
 import os
-from pathlib import Path
+import importlib.util
+from pathlib import Path, PurePosixPath
 
 # Add the Minian_data folder to sys.path so pipeline.py can be imported
 # regardless of the current working directory when this script is run.
@@ -42,20 +43,70 @@ _MINIAN_SCRIPTS_DIR = os.path.join(_THIS_DIR, "..", "Minian_data")
 if _MINIAN_SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, os.path.abspath(_MINIAN_SCRIPTS_DIR))
 
-import pipeline
+_PIPELINE_FILE = os.path.join(_MINIAN_SCRIPTS_DIR, "pipeline.py")
+_pipeline_spec = importlib.util.spec_from_file_location("pipeline", _PIPELINE_FILE)
+if _pipeline_spec is None or _pipeline_spec.loader is None:
+    raise ImportError(f"Could not load pipeline module from {_PIPELINE_FILE}")
+pipeline = importlib.util.module_from_spec(_pipeline_spec)
+_pipeline_spec.loader.exec_module(pipeline)
 
 # local destination using ils command and cd to your folder
-IRODS_BASE   = "/rug/home/j.ten.broeke.1@student.rug.nl/MiResearch Project S.C.W. van der Veldt" 
+IRODS_BASE   = "/rug/home/ATLAS_lab/Jesse_ten_Broeke" 
 SCRATCH_BASE = Path("/scratch/s4750098")   # local scratch destination
+OUTPUT_BASE  = Path("/scratch/s4750098/minian_outputs")
 
-# List of folder names that live inside IRODS_BASE and you want to download
+# List of folder names that live inside IRODS_BASE and you want to look through for data
 # Use path if folders are nested
-FOLDER_LIST = [
-    "session_001",
-    "session_002",
-    "session_003",
-]
+# These are the superceding folders, containing the individual nested test folders
 
+
+FOLDER_LIST = ["Batch 1/24"]
+
+# Here you can filter through the nested folders for specifically only the ones you want to analyze.
+REQUIRED = ("_T", "_PostEx")
+
+# Optional narrower subset within the required filter.
+# Example: ("_T1", "_T2") to process only those sessions.
+T_SUBSET = ()
+
+# Function for looking through the total on iRODS_BASE before downloading. 
+def discover_folders_under(root_rel: str) -> list[PurePosixPath]:
+    root_abs = f"{IRODS_BASE}/{root_rel}"
+    # Run the ils command with flag -r to get a recursive list of the root folder.
+    result = subprocess.run(["ils", "-r", root_abs], capture_output=True, text=True)
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip())
+
+    # Parse the output to extract folder paths relative to IRODS_BASE. The output lines that end with ":" indicate folders.
+    folders = []
+    for line in result.stdout.splitlines():
+        s = line.strip()
+        if not s.endswith(":"):
+            continue
+        s = s[:-1]
+        if s.startswith("C- "):
+            s = s[3:].strip()
+        p = PurePosixPath(s)
+        try:
+            rel = p.relative_to(PurePosixPath(IRODS_BASE))
+        except ValueError:
+            continue
+        folders.append(rel)
+
+    return folders
+
+def select_folders_for_download(folders: list[PurePosixPath]) -> list[PurePosixPath]:
+    selected: list[PurePosixPath] = []
+    for folder in folders:
+        name = folder.name
+        if not all(token in name for token in REQUIRED):
+            continue
+        if T_SUBSET and not any(tag in name for tag in T_SUBSET):
+            continue
+        selected.append(folder)
+
+    # Keep a stable, duplicate-free order across runs.
+    return sorted(set(selected), key=str)
 
 
 def iget(irods_path: str, local_path: Path) -> None:
@@ -89,14 +140,14 @@ def cleanup_local(local_path: Path) -> None:
 # COMPUTATION  – replace / extend this with your actual analysis
 # ---------------------------------------------------------------------------
 
-def run_computation(local_folder: Path) -> None:
+def run_computation(local_folder: Path, output_folder: Path) -> None:
     """
     Run the full Minian CNMF pipeline on the downloaded session folder,
     then run the post-processing scripts (convert_to_csv, plotting, map).
     local_folder is the Path to the downloaded data on /scratch.
     """
     print(f"[compute] Starting Minian pipeline on {local_folder} ...")
-    pipeline.run_pipeline(str(local_folder))
+    pipeline.run_pipeline(str(local_folder), output_dir=str(output_folder))
     print(f"[compute] Pipeline finished for {local_folder}")
 
 
@@ -106,18 +157,31 @@ def run_computation(local_folder: Path) -> None:
 # ---------------------------------------------------------------------------
 
 def main():
-    for folder_name in FOLDER_LIST:
-        irods_path  = f"{IRODS_BASE}/{folder_name}"
-        local_folder = SCRATCH_BASE / folder_name
-        pipeline.MINIAN_PATH = {folder_name: str(local_folder)}  # Set the minian path for this folder"
+    all_folders: list[PurePosixPath] = []
+    for root in FOLDER_LIST:
+        all_folders.extend(discover_folders_under(root))
+
+    dwnld_folders = select_folders_for_download(all_folders)
+    if not dwnld_folders:
+        print(f"[info] No matching folders found under {FOLDER_LIST}")
+        return
+
+    print(f"[info] Found {len(dwnld_folders)} folder(s) to process")
+
+    for folder_name in dwnld_folders:
+        irods_path = f"{IRODS_BASE}/{folder_name.as_posix()}"
+        local_folder = SCRATCH_BASE / Path(*folder_name.parts)
+        output_folder = OUTPUT_BASE / folder_name.name
+        output_folder.mkdir(parents=True, exist_ok=True)
 
         print(f"\n{'='*60}")
         print(f"Processing folder: {folder_name}")
+        print(f"Output folder: {output_folder}")
         print(f"{'='*60}")
 
         try:
             iget(irods_path, local_folder)
-            run_computation(local_folder)
+            run_computation(local_folder, output_folder)
         except Exception as e:
             print(f"[ERROR] {folder_name}: {e}")
         finally:

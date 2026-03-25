@@ -24,6 +24,7 @@ Requirements
 """
 
 import itertools as itt
+import importlib.util
 import os
 import sys
 import shutil as _shutil
@@ -45,7 +46,7 @@ from IPython.core.display import display
 MINIAN_PATH = "."
 
 
-def run_pipeline(dpath: str) -> None:
+def run_pipeline(dpath: str, output_dir: str | None = None) -> None:
     """
     Run the full Minian CNMF pipeline on a single session folder.
 
@@ -54,6 +55,9 @@ def run_pipeline(dpath: str) -> None:
     dpath : str
         Path to the local folder that contains the raw .avi videos.
         When called from low_level_loop.py this is the /scratch download path.
+    output_dir : str | None
+        Output folder where minian arrays, videos, CSVs, and figures are saved.
+        If None, outputs are written inside dpath (original behavior).
     """
 
     pipeline_start = time.time()
@@ -108,7 +112,10 @@ def run_pipeline(dpath: str) -> None:
     # Parameters
     # -----------------------------------------------------------------------
     dpath = os.path.abspath(dpath)
-    minian_ds_path = os.path.join(dpath, "minian")
+    output_dir = os.path.abspath(output_dir) if output_dir else dpath
+    os.makedirs(output_dir, exist_ok=True)
+
+    minian_ds_path = os.path.join(output_dir, "minian")
     intpath = "./minian_intermediate"
     subset = dict(frame=slice(0, None))
     subset_mc = None
@@ -260,7 +267,7 @@ def run_pipeline(dpath: str) -> None:
 
         # Make motion-correction comparison video
         vid_arr = xr.concat([varr_ref, Y_fm_chk], "width").chunk({"width": -1})
-        write_video(vid_arr, "minian_mc.mp4", dpath)
+        write_video(vid_arr, "minian_mc.mp4", output_dir)
 
         # ===================================================================
         # INITIALIZATION
@@ -479,7 +486,7 @@ def run_pipeline(dpath: str) -> None:
         # FINAL VISUALISATIONS & SAVE
         # ===================================================================
         print("[pipeline] Generating output video ...")
-        generate_videos(varr.sel(subset), Y_fm_chk, A=A, C=C_chk, vpath=dpath)
+        generate_videos(varr.sel(subset), Y_fm_chk, A=A, C=C_chk, vpath=output_dir)
 
         print("[pipeline] Saving final results ...")
         A  = save_minian(A.rename("A"),   **param_save_minian)
@@ -493,14 +500,58 @@ def run_pipeline(dpath: str) -> None:
         # ===================================================================
         # POST-PROCESSING SCRIPTS (convert_to_csv, plotting, map)
         # ===================================================================
-        _script_dir = os.path.dirname(os.path.abspath(__file__))
-        for script_name in ("convert_to_csv.py", "plotting.py", "map.py"):
-            script_path = os.path.join(_script_dir, script_name)
-            if os.path.exists(script_path):
-                print(f"[pipeline] Running {script_name} ...")
-                exec(open(script_path).read(), {"dpath": dpath})
+        _script_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+
+        def _load_module_from_file(module_name: str, file_path: str):
+            spec = importlib.util.spec_from_file_location(module_name, file_path)
+            if spec is None or spec.loader is None:
+                raise ImportError(f"Could not load module '{module_name}' from {file_path}")
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+
+        try:
+            convert_mod = _load_module_from_file(
+                "convert_to_csv", os.path.join(_script_dir, "convert_to_csv.py")
+            )
+            print("[pipeline] Running convert_to_csv.py ...")
+            convert_mod.convert_to_csv(param_save_minian=param_save_minian, file_name="C.csv")
+        except Exception as exc:
+            print(f"[pipeline] WARNING: convert_to_csv failed: {exc}")
+
+        try:
+            binary_mod = _load_module_from_file(
+                "bina_csv_data", os.path.join(_script_dir, "bina_csv_data.py")
+            )
+            c_csv = os.path.join(minian_ds_path, "C.csv")
+            if os.path.exists(c_csv):
+                print("[pipeline] Running bina_csv_data.py ...")
+                df_binary, df_filtered, df_normalized, df_derivative = binary_mod.process_calcium_data(c_csv)
+                df_binary.to_csv(os.path.join(minian_ds_path, "C_binary.csv"), index=False)
+                df_filtered.to_csv(os.path.join(minian_ds_path, "C_filtered.csv"), index=False)
+                df_normalized.to_csv(os.path.join(minian_ds_path, "C_normalized.csv"), index=False)
+                df_derivative.to_csv(os.path.join(minian_ds_path, "C_derivative.csv"), index=False)
             else:
-                print(f"[pipeline] WARNING: {script_name} not found at {script_path}, skipping.")
+                print(f"[pipeline] WARNING: C.csv not found at {c_csv}; skipping bina_csv_data")
+        except Exception as exc:
+            print(f"[pipeline] WARNING: bina_csv_data failed: {exc}")
+
+        try:
+            plotting_mod = _load_module_from_file(
+                "plotting", os.path.join(_script_dir, "plotting.py")
+            )
+            c_binary_csv = os.path.join(minian_ds_path, "C_binary.csv")
+            if os.path.exists(c_binary_csv):
+                print("[pipeline] Running plotting.py ...")
+                plotting_mod.plot_cells(file_name="C_binary.csv", csv_path=c_binary_csv, save_figure=True)
+            else:
+                print(f"[pipeline] WARNING: C_binary.csv not found at {c_binary_csv}; skipping plotting")
+        except Exception as exc:
+            print(f"[pipeline] WARNING: plotting failed: {exc}")
+
+        map_path = os.path.join(_script_dir, "map.py")
+        if not os.path.exists(map_path):
+            print(f"[pipeline] INFO: map.py not found at {map_path}; skipping.")
 
     finally:
         # Always close cluster, even if something fails mid-pipeline
